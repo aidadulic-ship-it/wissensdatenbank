@@ -36,6 +36,7 @@ Die App ist eine einzige Datei ohne Build-Schritt und ohne Abhängigkeiten.
 - Onboarding-Plan: weiterführen, verbessern oder einstellen
 - Verkürzter Übergabeprozess für Sonderfälle
 - **Wissensregister:** Stellenbeschreibungen, Projekte, Auswertung mit Hinweisen
+- **Produktionsreife & Umsetzung:** interaktiver Planungsbereich (Code-Befunde, Zielarchitektur, Datenmodell und Fachregeln, Outlook/Graph-Plan, Workflows, Sicherheit & Datenschutz, Fahrplan M0–M5) mit Status, Verantwortlichen, Zieltermin, Nachweisen, Filtern und Markdown-Export. Reine Planung: Datenbank, Outlook und Automatisierungen sind weiterhin simuliert; es gibt kein Backend, keine echte Anmeldung und keine Graph-Anbindung. Die Planungsdaten liegen getrennt im Browser (`wissen-bleibt-plan-v1`).
 - Demo-Rollenwechsel (austretende Person, Führungskraft, übernehmende Person, HR)
 - Befehlspalette (Strg/Cmd + K), Hilfe, Hell- und Dunkelmodus, Bedienung am Handy
 

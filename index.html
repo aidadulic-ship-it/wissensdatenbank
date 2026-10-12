@@ -648,6 +648,45 @@ button.cal-d.sel{box-shadow:inset 0 0 0 3px var(--magenta);z-index:1}
   </div></section>
   <p class="lp-note">Prototyp ohne Anmeldung und ohne Zugriffskontrolle. Bitte keine echten personenbezogenen Daten eintragen.</p>
 </div>
+<style>
+.pf-body{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;min-width:0}
+.pf-body>*{min-width:0;max-width:100%}
+.pf-body .chip{white-space:normal;max-width:100%}
+.pf-body .tablewrap{max-width:100%;position:relative}
+.pf-legend{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0}
+.pf-kpis{margin-bottom:0}
+.pf-kpi{text-align:left;cursor:pointer;font:inherit;color:inherit;min-width:0}
+.pf-kpi:hover{border-color:var(--navy)}
+.pf-kpi .kpi-num{font-size:1.9rem;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.pf-filter{display:flex;flex-wrap:wrap;gap:12px 14px;align-items:flex-end}
+.pf-filter .field{flex:1 1 150px;min-width:0}
+.pf-filter .pf-q{flex:2 1 220px}
+.pf-list{display:grid;gap:16px;min-width:0}
+.pf-card{min-width:0}
+.pf-head{display:flex;gap:10px;align-items:flex-start}
+.pf-head h3{margin:0;font-size:1.05rem;min-width:0;overflow-wrap:anywhere}
+.pf-id{flex:none;padding:2px 8px;border-radius:6px;background:var(--surface-2);color:var(--ink);font-weight:700}
+.pf-chips{flex-wrap:wrap;gap:6px;align-items:center}
+.pf-file{margin:0;overflow-wrap:anywhere}
+.pf-dl{display:grid;gap:10px;margin:0}
+.pf-dl dt{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.pf-dl dd{margin:2px 0 0;line-height:1.55;overflow-wrap:anywhere}
+.pf-acc{padding:10px 12px;border-left:3px solid var(--magenta);background:var(--magenta-soft);border-radius:0 var(--r-sm) var(--r-sm) 0}
+.pf-meta,.pf-dep,.pf-note,.pf-ev{margin:0;overflow-wrap:anywhere}
+.pf-dep{color:var(--warn)}
+.pf-flow{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.pf-flow li{padding:8px 14px;border-radius:999px;background:var(--surface-2);font-weight:600}
+.pf-flow li+li::before{content:"→";margin-right:8px;color:var(--magenta)}
+.pf-bul{margin:0;padding-left:20px;display:grid;gap:8px;line-height:1.55}
+.pf-decs{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.pf-decs li{flex-wrap:wrap;gap:8px 10px;align-items:center}
+.pf-road{display:grid;gap:14px;margin:0;padding:0;list-style:none}
+.pf-table{width:100%;border-collapse:collapse;font-size:.92rem}
+.pf-table th,.pf-table td{padding:10px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.pf-table th{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.pf-table td:nth-child(2){min-width:220px}
+@media (max-width:600px){.pf-head{flex-direction:column;gap:6px}}
+</style>
 <script>
 'use strict';
 /* ================= Grundlagen ================= */
@@ -1190,7 +1229,8 @@ const NAV = [
   { v: 'wissen', label: 'Wissensbasis', i: 'book' },
   { v: 'onboarding', label: 'Onboarding', i: 'sprout' },
   { v: 'register', label: 'Wissensregister', i: 'book' },
-  { v: 'sonderfall', label: 'Verkürzte Übergabe', i: 'bolt' }
+  { v: 'sonderfall', label: 'Verkürzte Übergabe', i: 'bolt' },
+  { v: 'prod', label: 'Produktionsreife', i: 'check' }
 ];
 const NAV_OF = { case: 'exits', neu: 'exits', kb: 'wissen', onb: 'onboarding' };
 function go(view, p = {}) {
@@ -1199,7 +1239,7 @@ function go(view, p = {}) {
   const mn = $('#main'); mn.classList.remove('enter'); void mn.offsetWidth; mn.classList.add('enter');
   window.scrollTo(0, 0);
 }
-const NAV_GRP = { dashboard: 'Transfer', wissen: 'Wissen & Einarbeitung', register: 'Langzeit-Register', sonderfall: 'Sonderfälle' };
+const NAV_GRP = { dashboard: 'Transfer', wissen: 'Wissen & Einarbeitung', register: 'Langzeit-Register', sonderfall: 'Sonderfälle', prod: 'Planung & Betrieb' };
 const TABS = [['dashboard', 'Start', 'home'], ['exits', 'Fälle', 'exit'], ['aufgaben', 'Aufgaben', 'list'], ['termine', 'Termine', 'cal']];
 function renderChrome() {
   const cur = NAV_OF[S.ui.view] || S.ui.view;
@@ -3365,6 +3405,404 @@ function lpHide() {
 ACT.lpStart = () => lpHide();
 ACT.lpHome = () => { closeNav(); lpShow(); };
 function lpInit() { if (location.hash === '#app') return; lpShow(); }
+/* ================= Produktionsreife & Umsetzung: Inhalte =================
+   Reiner Planungsinhalt. Nichts davon ist eine produktive Funktion:
+   Datenbank, Outlook und Automatisierungen bleiben in dieser App simuliert. */
+const PROD_MS = [
+  ['M0', 'Entscheidungen', 'Prozessregeln, Datenmodell, Rollen, HR-Eingang, Organisatorpostfach, Datenschutz sowie Hosting, Technik und Mandantenmodell festlegen.', []],
+  ['M1', 'Sichere Datenbasis', 'Backend, PostgreSQL, Entra-Anmeldung, API, Migrationen, Audit und Konflikterkennung.', ['M0']],
+  ['M2', 'Fachprozess', 'Prüfstufen, Nacharbeit, Wissensversionen, fortschrittserhaltendes Onboarding und konsistentes Register.', ['M1']],
+  ['M3', 'Graph', 'Termine, Antworten, Webhooks, Wiederholungen und Postfachbegrenzung.', ['M1']],
+  ['M4', 'Automatisierung', 'HR-Eingang, Scheduler, Erinnerungen und Eskalationen.', ['M2', 'M3']],
+  ['M5', 'Produktionsfreigabe', 'Sicherheitsprüfung, Wiederherstellung, Datenschutzabläufe und vollständiger Pilot.', ['M2', 'M3', 'M4']]
+];
+const PROD_KIND = { F: 'Code-Befund', R: 'Fachregel', G: 'Graph-Maßnahme', W: 'Workflow', S: 'Sicherheit & Datenschutz', D: 'Offene Entscheidung' };
+const PROD_ST = [['offen', 'Offen', 'neutral'], ['arbeit', 'In Arbeit', 'info'], ['blockiert', 'Blockiert', 'crit'], ['pruefung', 'Zur Prüfung', 'warn'], ['abgenommen', 'Abgenommen', 'ok']];
+
+const PROD_STRENGTHS = [
+  ['Exit-Fälle', 'Fall anlegen, Fristen und Verantwortliche je Austritt (3-data.js, 5-views1.js).'],
+  ['Prioritäten A/B/C', 'Kritikalität steuert Übergabeschritte, Lernfenster und Prüfpflichten (PREP, learnWindow).'],
+  ['Sechs Prüfstufen', 'Dokumentation, fachliche Prüfung, Zugänge, erklärt, durchgeführt, abgenommen – getrennt statt als ein Haken (CHK in 4b-model.js).'],
+  ['Vertretung & Nachfolge', 'Verfügbarkeitsprüfung, Vertretung vor Eintritt, Status „blockiert“ (availWhy, receiverFor, evBlock).'],
+  ['Rückwärtsplanung', 'Termine werden vom letzten Arbeitstag aus berechnet, mit Neuplanung bei Änderung (buildPlan, planReschedule).'],
+  ['Wissenserfassung', 'Start mit den drei kritischsten Aufgaben, Quellen, Fehlendes und Erfahrungswissen (4c-know.js).'],
+  ['Nacharbeit', 'Fehlversuche zählen nicht als Übernahme; Nacharbeit und Wiederholung sind abgebildet.'],
+  ['Wissensregister', 'Stellen, Projekte und Auswertung mit Hinweisen (11-register.js).'],
+  ['Onboarding-Erzeugung', 'Entscheidung weiterführen/verbessern/einstellen erzeugt Plan und Lernpfad (generateOnboarding, buildLearnPlan).']
+];
+
+const PROD_ITEMS = [
+  /* ---------- Code-Befunde ---------- */
+  { id: 'F01', k: 'F', t: 'Gesamtzustand nur im Browser, Speicherfehler werden verschluckt', p: 'hoch', m: 'M1', dep: ['D7', 'D8'], st: 'bestätigt', file: '4-core.js · load(), save()',
+    d: [['Befund', 'save() (Z. 7) und load() (Z. 4) fangen Fehler mit leerem Catch. Schlägt localStorage fehl (Speicher voll, privates Fenster, gesperrt), arbeitet die App ohne Hinweis weiter; Änderungen gehen beim Schließen verloren.'], ['Auswirkung', 'Stiller Datenverlust; kein Mehrgeräte- oder Mehrpersonenbetrieb.'], ['Maßnahme', 'Persistenz in PostgreSQL über die API. Bis dahin: sichtbare Fehlermeldung bei Speicherproblemen (in diesem Planungsbereich bereits so umgesetzt, im Rest der App noch nicht).']],
+    a: 'Ein erzwungener Speicherfehler erzeugt eine sichtbare Meldung; Daten sind nach Browserwechsel und Neuladen vorhanden.' },
+  { id: 'F02', k: 'F', t: 'Berechtigungen beruhen auf frei wählbarer Demo-Rolle', p: 'hoch', m: 'M1', dep: ['D3', 'S01'], st: 'bestätigt', file: '4-core.js · me(), can(); 3-data.js · ROLES, PERM',
+    d: [['Befund', 'me() liest ROLES[S.role].person, can() prüft PERM[k].includes(S.role). S.role wird über das Auswahlfeld „Ansicht“ gesetzt (8-actions.js, Z. 263). Auch die „prüfende Person“ der fachlichen Prüfung wird im Formular gewählt (8b-actions-rev.js, Z. 126) und nur im Browser auf Gleichheit mit der dokumentierenden Person geprüft.'], ['Auswirkung', 'Jede Person kann jede Rolle einnehmen; Prüf- und Abnahmeschritte sind nicht belastbar.'], ['Maßnahme', 'Entra-Anmeldung, Benutzeridentität statt Rolle im Browser, serverseitige Prüfung je Aktion mit Fallberechtigung.']],
+    a: 'Jede API-Aktion wird serverseitig gegen Identität und Fallrechte geprüft; ein Test je Rolle und Aktion belegt 403 ohne Berechtigung.' },
+  { id: 'F03', k: 'F', t: 'Register und Hauptzustand haben getrennte Speicherwege', p: 'hoch', m: 'M1', dep: ['D2', 'D8'], st: 'bestätigt', file: '11-register.js · regInit(), regLocalDb(), REG_LK',
+    d: [['Befund', 'Hauptzustand: Schlüssel „wissen-bleibt-demo-v2“ (3-data.js). Register: eigener Schlüssel „wissen-bleibt-register-v1“ (11-register.js, Z. 188) oder die gemeinsame Datenbank der Veröffentlichungsumgebung, falls vorhanden (Z. 221–225). Beide Speicher kennen sich nicht.'], ['Auswirkung', 'Fall und Register können auseinanderlaufen; kein gemeinsames Schema, keine Fremdschlüssel.'], ['Maßnahme', 'Ein Schema in PostgreSQL für Fälle und Register; Register als Ableitung bzw. Fremdschlüsselbeziehung.']],
+    a: 'Fall- und Registerdaten liegen in einer Datenbank mit Fremdschlüsseln; ein Abgleichstest findet keine Waisen.' },
+  { id: 'F04', k: 'F', t: 'Onboarding und Register werden ohne gemeinsame Transaktion geschrieben', p: 'hoch', m: 'M1', dep: ['F03'], st: 'bestätigt', file: '8-actions.js · decide; 11-register.js · regSync()',
+    d: [['Befund', 'decide setzt S.decisions, erzeugt das Onboarding und ruft save() (Z. 214–226). Danach startet regSync() asynchron: einzelne set()-Schreibvorgänge in Promise.all (11-register.js, Z. 183). Bei Fehler liefert regSync false; im Aufrufer gibt es keinen Fehlerzweig (Z. 227), bei fehlender Datenbank gibt regSync still false zurück (Z. 162).'], ['Auswirkung', 'Onboarding kann existieren, während Stelle, Projekte oder Auswertung fehlen oder nur teilweise geschrieben sind – ohne sichtbaren Fehler.'], ['Maßnahme', 'Eine Datenbanktransaktion für Entscheidung und Onboarding; Registeränderung als Outbox-Auftrag mit Wiederholung und sichtbarem Fehlerstatus.']],
+    a: 'Fehlerinjektion im Registerschritt führt zu Rollback oder zu einem sichtbar wiederholbaren Auftrag; kein stiller Zwischenzustand.' },
+  { id: 'F05', k: 'F', t: 'Stellen-IDs entstehen aus Titeln – gleichnamige Stellen kollidieren', p: 'mittel', m: 'M2', dep: ['F03'], st: 'bestätigt', file: '11-register.js · regSlug(), regSync()',
+    d: [['Befund', 'sid = „stelle-“ + regSlug(roleTitle) (Z. 160, 164). „Learning Specialist“ und „Learning-Specialist“ ergeben dieselbe ID; ein zweiter Austritt gleicher Rolle überschreibt die Stelle (Object.assign auf den Altstand) und erhöht nur die Version.'], ['Auswirkung', 'Stellen verschiedener Teams oder Standorte mit gleichem Titel verschmelzen.'], ['Maßnahme', 'Unveränderliche ID (UUID); Titel nur als Attribut; Zuordnung Fall → Stelle explizit.']],
+    a: 'Zwei Stellen mit gleichem Titel ergeben zwei getrennte Datensätze.' },
+  { id: 'F06', k: 'F', t: 'Neugenerierung setzt Onboarding-Fortschritt zurück und vergibt Positions-IDs neu', p: 'hoch', m: 'M2', dep: [], st: 'bestätigt', file: '7-views3.js · generateOnboarding()',
+    d: [['Befund', 'Das neue Objekt setzt done: {} (Z. 275). Positions-IDs kommen aus einem Zähler „i1, i2, …“ (Z. 246) und hängen von der Reihenfolge ab. S.onboardings wird gefiltert und ersetzt (Z. 276).'], ['Auswirkung', 'Wer „Onboarding neu erzeugen“ wählt, verliert abgehakte Lernaufgaben.'], ['Maßnahme', 'Planversionen; stabile Lernaufgaben-ID aus Aufgabe und Art; Fortschritt per Fremdschlüssel an die Lernaufgabe.']],
+    a: 'Nach Neugenerierung bleiben erledigte Lernaufgaben erledigt; ein Test deckt Entfallen und Neuaufnahme ab.' },
+  { id: 'F07', k: 'F', t: 'Einladungsversand und Annahme sind lokale Statusänderungen', p: 'mittel', m: 'M3', dep: ['G07'], st: 'bestätigt', file: '8-actions.js · simInvite',
+    d: [['Befund', 'simInvite setzt e.status auf „versendet“ oder „angenommen“ (Z. 32–34) und schreibt einen Historieneintrag mit dem Zusatz „Demo – keine Einladung versendet“.'], ['Auswirkung', 'Keine echte Einladung; Annahme ist nicht an eine Teilnehmerantwort gebunden. Die Kennzeichnung als Demo ist vorhanden.'], ['Maßnahme', 'Graph-Aufträge über Outbox; Antwortstatus getrennt von Durchführung und fachlicher Abnahme.']],
+    a: 'Status „versendet“ nur nach Graph-Bestätigung; eine Zusage setzt keine Prüfstufe.' },
+  { id: 'F08', k: 'F', t: 'Demo-Datum: Termine können ohne Nachweis als durchgeführt gelten', p: 'mittel', m: 'M2', dep: [], st: 'teilweise bestätigt', file: '8b-actions-rev.js · demoSave',
+    d: [['Befund', 'demoSave setzt Termine zwischen altem und neuem Datum auf „stattgefunden“ (Z. 209). Das ist voreingestellt (Häkchen „skip“), mit Vermerk „Demo-Sprung“; blockierte Termine und Meilensteine sind ausgenommen.'], ['Korrektur', 'Nicht ganz „ohne Kennzeichnung“: der Vermerk ist gesetzt und das Häkchen abwählbar. Ohne Nachweis bleibt es trotzdem.'], ['Maßnahme', 'Funktion nur im Demo-Build; im Betrieb ist „durchgeführt“ nur mit Nachweis oder Teilnehmerbeleg möglich.']],
+    a: 'Im Produktivbuild existiert kein Datumssprung; kein Termin wird ohne Nachweis auf „durchgeführt“ gesetzt.' },
+  { id: 'F09', k: 'F', t: 'Historie und Prüflogs sind lokal veränderbar', p: 'hoch', m: 'M1', dep: ['F01'], st: 'bestätigt', file: '4-core.js · hist(); 4b-model.js · setCs()',
+    d: [['Befund', 'hist() schreibt in S.history (Z. 20), setCs() in t.csLog; beides liegt im frei editierbaren localStorage-JSON. Der Zeitstempel ist das Demo-Datum (TODAY), nicht die Serverzeit; der Akteur ist die gewählte Rolle.'], ['Auswirkung', 'Kein belastbarer Nachweis, wer wann was entschieden hat.'], ['Maßnahme', 'Append-only Audit-Tabelle mit Serverzeit und authentifizierter Identität; keine Änderung über die API.']],
+    a: 'Audit-Einträge sind über die API nicht änder- oder löschbar; Zeit und Akteur stammen vom Server.' },
+  { id: 'F10', k: 'F', t: 'Onboarding enthält feste Beispielreferenzen', p: 'mittel', m: 'M2', dep: ['F06'], st: 'bestätigt', file: '7-views3.js · generateOnboarding()',
+    d: [['Befund', '„kb-r1“ ist fest als Rollenwissen eingetragen (Z. 247, 254) und der Text „im Team Learning & Development“ steht im Code (Z. 254, außerdem Organigramm Z. 129).'], ['Auswirkung', 'Onboarding für andere Rollen oder Bereiche würde falsche Bezüge anzeigen.'], ['Maßnahme', 'Rollenwissen und Team aus Stelle und Organisationseinheit ableiten.']],
+    a: 'Ein Onboarding für eine andere Abteilung enthält keinen Bezug auf Learning & Development.' },
+  { id: 'F11', k: 'F', t: '„Freigegebenes Wissen“ entspricht keiner verifizierten Wissensversion', p: 'hoch', m: 'M2', dep: [], st: 'bestätigt', file: '7-views3.js · Onboarding-Ansicht (Z. 234); 4c-know.js · isVerified',
+    d: [['Befund', 'Die Liste zeigt o.kbIds: „kb-r1“ plus kbId der übernommenen Aufgaben, gefiltert nur auf Existenz (Z. 247). Wissenseinträge haben weder Version noch Freigabestatus (3-data.js, Z. 194 ff.). isVerified (4c-know.js, Z. 98) hängt an der Aufgabe, nicht an einer Wissensversion.'], ['Auswirkung', 'Die Überschrift „Freigegebenes Wissen“ kann Inhalte zeigen, die nie geprüft wurden. Nicht verifizierte Aufgaben erscheinen immerhin separat als „Offene Lernaufgabe (Inhalt nicht verifiziert)“.'], ['Maßnahme', 'Wissensversionen mit Freigabe; Anzeige nur freigegebener Versionen, übrige als Entwurf.']],
+    a: 'Die Liste enthält ausschließlich Versionen mit Status „freigegeben“; eine neue Version setzt die Freigabe zurück.' },
+  { id: 'F12', k: 'F', t: 'SENSITIVE ist eine Eingabehilfe; HTML-Ausgabe braucht Sicherheitsprüfung', p: 'mittel', m: 'M5', dep: [], st: 'teilweise bestätigt', file: '3-data.js · SENSITIVE, esc(); 4-core.js · toast(), modal()',
+    d: [['Befund', 'SENSITIVE (Z. 100) ist ein Wortfilter und an mehreren Stellen als Eingabehinweis eingesetzt. Die Views maskieren Nutzertext durchgängig mit esc() (Z. 8).'], ['Korrektur', 'Das Bild ist besser als „überall innerHTML“: Ausnahmen sind toast(msg) (4-core.js, Z. 108) und der Modal-Titel (Z. 116), die Text ungefiltert als HTML setzen. Beispiel: „Exit-Fall für ${d.name} angelegt“ (8-actions.js, Z. 106) reicht Roheingabe an toast() weiter.'], ['Maßnahme', 'toast/modal auf textContent umstellen; serverseitige Validierung; Content-Security-Policy; Sicherheitstest. Der Wortfilter ist kein Datenschutznachweis.']],
+    a: 'Testeingaben mit HTML/Skript bleiben in allen Feldern wirkungslos; kein innerHTML mit Nutzerdaten.' },
+  { id: 'F13', k: 'F', t: 'Backend, Migrationen, automatisierte Tests und Betriebskonfiguration fehlen', p: 'hoch', m: 'M1', dep: ['D7', 'D8'], st: 'bestätigt', file: 'Projekt (index.html, src/, build.sh)',
+    d: [['Befund', 'Das gelieferte Projekt besteht aus index.html, src/*.js, build.sh, README und design/. Es gibt weder Server noch Datenbankschema, Migrationen, Testdateien, CI oder Betriebskonfiguration. Playwright-Prüfskripte existieren nur als Arbeitsskripte außerhalb des Pakets.'], ['Auswirkung', 'Kein reproduzierbarer Betrieb, kein Rückfallpfad, keine Regressionssicherung.'], ['Maßnahme', 'Backend-Projekt, versionierte Migrationen, Test-Pipeline, getrennte Umgebungen, Monitoring.']],
+    a: 'CI führt Unit-, API- und End-to-End-Tests aus; Migrationen sind versioniert und auf leerer Datenbank lauffähig.' },
+
+  /* ---------- Fachregeln ---------- */
+  { id: 'R01', k: 'R', t: 'Serverseitige Berechtigungsprüfung für jede Aktion', p: 'hoch', m: 'M1', dep: ['F02'], d: [['Regel', 'Keine Aktion verlässt sich auf Browser-Prüfungen. Berechtigung = Identität × Fall × Aktion.']], a: 'Testmatrix Rolle × Aktion ist grün.' },
+  { id: 'R02', k: 'R', t: 'Keine fachliche Selbstfreigabe der eigenen Dokumentation', p: 'hoch', m: 'M2', dep: ['R01'], d: [['Regel', 'Wer dokumentiert, prüft nicht fachlich und nimmt nicht ab. Heute: Gleichheit wird nur beim Formular geprüft (8b-actions-rev.js, Z. 126); die Führungskraft darf sowohl dokumentieren (stDoku) als auch prüfen (stFach).']], a: 'Der Server lehnt Prüfung und Abnahme durch die dokumentierende Person ab.' },
+  { id: 'R03', k: 'R', t: 'Gemeinsame Übergangsmatrix für Abnahme, Durchführung, Verifizierung und Übernahme', p: 'hoch', m: 'M2', dep: ['D1'], d: [['Regel', 'Eine Tabelle definiert, welche Prüfstufen für Priorität und Zustand nötig sind. Heute getrennte Prädikate: acceptBlock (4b-model.js, Z. 99), execBlock (Z. 156), isTaken (Z. 91) und isVerified (4c-know.js, Z. 98). Beispiel für Abweichung: execBlock verlangt Dokumentation, aber keine fachliche Prüfung; isTaken und isVerified verlangen sie bei Priorität A.']], a: 'Alle vier Prädikate lesen dieselbe Matrix; ein Test prüft alle Kombinationen ohne Widerspruch.' },
+  { id: 'R04', k: 'R', t: 'Neue Wissensversionen übernehmen alte Freigaben nicht ungeprüft', p: 'hoch', m: 'M2', dep: ['F11'], d: [['Regel', 'Jede Änderung am Inhalt erzeugt eine Version im Status „Entwurf“; Freigabe gilt nur für diese Version.']], a: 'Änderung eines freigegebenen Eintrags setzt den Status zurück.' },
+  { id: 'R05', k: 'R', t: 'Onboarding-Neugenerierung erhält vorhandenen Fortschritt', p: 'hoch', m: 'M2', dep: ['F06'], d: [['Regel', 'Neue Planversion verknüpft Lernaufgaben über stabile IDs und übernimmt erledigte Aufgaben.']], a: 'Test: erledigt → neu erzeugen → weiterhin erledigt.' },
+  { id: 'R06', k: 'R', t: 'Fehlende Nachfolge führt zu bestätigter Vertretung und sichtbaren Blockierungen', p: 'mittel', m: 'M2', dep: ['D1'], d: [['Regel', 'Ohne Nachfolge muss eine Vertretung bestätigt sein; betroffene Aufgaben und Termine zeigen „blockiert“ mit Grund. Teilweise vorhanden (availWhy, evBlock, decide verweigert Onboarding ohne Nachfolge).']], a: 'Kritische Aufgabe ohne bestätigte Person ist nicht abnehmbar und sichtbar blockiert.' },
+  { id: 'R07', k: 'R', t: 'Sonderfälle benötigen Entscheidung, Begründung und Audit', p: 'mittel', m: 'M2', dep: ['F09'], d: [['Regel', 'Verkürzte Übergabe und Ausnahmen werden mit Entscheiderin, Begründung und Zeitpunkt im Audit festgehalten.']], a: 'Jeder Sonderfall hat Audit-Eintrag mit Begründung.' },
+  { id: 'R08', k: 'R', t: 'Unveränderliche IDs, Fremdschlüssel, Transaktionen und Konflikterkennung', p: 'hoch', m: 'M1', dep: ['F03'], d: [['Regel', 'UUIDs, Fremdschlüssel, Transaktionen je Fachaktion, Versionsfeld für optimistische Sperre.']], a: 'Gleichzeitige Änderung derselben Aufgabe liefert einen Konflikt statt stillem Überschreiben.' },
+
+  /* ---------- Graph ---------- */
+  { id: 'G01', k: 'G', t: 'App-Registrierung und administrativ genehmigte Berechtigungen', p: 'hoch', m: 'M3', dep: ['D5'], d: [['Plan', 'Eigene App-Registrierung; Berechtigungen minimal und durch Administration genehmigt.'], ['Zu verifizieren', 'Genaue Berechtigungswahl (delegiert oder Anwendung) technisch prüfen; Entra-Freigaben und Exchange Application RBAC gemeinsam betrachten.']], a: 'Dokumentierte, genehmigte Berechtigungsliste; Zugriff außerhalb des Umfangs scheitert im Test.' },
+  { id: 'G02', k: 'G', t: 'Festes Organisatorpostfach, unabhängig vom Konto der austretenden Person', p: 'hoch', m: 'M3', dep: ['D5'], d: [['Plan', 'Einladungen kommen von einem definierten Postfach, damit Termine nach dem Austritt nicht mit dem Konto verschwinden.']], a: 'Termine bleiben nach Deaktivierung des Kontos der austretenden Person erhalten.' },
+  { id: 'G03', k: 'G', t: 'Kalenderzugriff nur auf benötigte Postfächer', p: 'hoch', m: 'M3', dep: ['G01'], d: [['Plan', 'Zugriff auf Organisator und betroffene Beteiligte begrenzen.'], ['Zu verifizieren', 'Begrenzung über Exchange Application RBAC oder gleichwertig, zusammen mit den Entra-Freigaben.']], a: 'Zugriffstest auf ein nicht freigegebenes Postfach schlägt fehl.' },
+  { id: 'G04', k: 'G', t: 'Frei-/Belegt-Abfrage für die Terminplanung', p: 'mittel', m: 'M3', dep: ['G03'], d: [['Plan', 'Vorschläge nur anhand Frei/Belegt, ohne Termininhalte zu lesen.']], a: 'Terminvorschlag nutzt Verfügbarkeit; Inhalte werden nicht gespeichert.' },
+  { id: 'G05', k: 'G', t: 'Separate Erinnerungsmails nur bei tatsächlichem Bedarf', p: 'niedrig', m: 'M4', dep: ['W06'], d: [['Plan', 'Keine Standard-Mails; Erinnerung nur bei Überfälligkeit oder fehlender Antwort, begrenzt.']], a: 'Keine Erinnerung ohne Auslöser; Obergrenze je Aufgabe.' },
+  { id: 'G06', k: 'G', t: 'Stabile lokale Termin-ID, Graph-ID und transactionId', p: 'hoch', m: 'M3', dep: ['R08'], d: [['Plan', 'Lokale ID bleibt gleich; Graph-ID wird zugeordnet; eine transactionId verhindert doppelte Erstellung bei Wiederholung.']], a: 'Wiederholter Auftrag erzeugt keinen zweiten Termin.' },
+  { id: 'G07', k: 'G', t: 'Erstellen, Ändern und Absagen als persistente Aufträge', p: 'hoch', m: 'M3', dep: ['G06'], d: [['Plan', 'Outbox-Aufträge mit Status, Versuchsanzahl und Fehlergrund, verarbeitet vom Worker.']], a: 'Neustart des Workers verliert keinen Auftrag.' },
+  { id: 'G08', k: 'G', t: 'Teilnehmerantworten getrennt von Durchführung und fachlicher Abnahme', p: 'hoch', m: 'M3', dep: ['G07', 'R03'], d: [['Plan', 'Eine Zusage ist nur ein Antwortstatus. Sie setzt weder „durchgeführt“ noch eine Prüfstufe.']], a: 'Test: Zusage ändert keine Prüfstufe und keine Kennzahl.' },
+  { id: 'G09', k: 'G', t: 'Validierte Webhooks, Deduplizierung, Subscription-Erneuerung, Delta-Abgleich', p: 'hoch', m: 'M3', dep: ['G07'], d: [['Plan', 'Webhook-Eingang prüft Gültigkeit, dedupliziert Ereignisse, erneuert Subscriptions vor Ablauf und gleicht per Delta ab.']], a: 'Doppelte Benachrichtigung ändert nichts; verpasste Benachrichtigung wird per Delta nachgeholt.' },
+  { id: 'G10', k: 'G', t: 'Wiederholung mit Retry-After, sichtbare dauerhafte Fehler, manuelle Wiederaufnahme', p: 'mittel', m: 'M3', dep: ['G07'], d: [['Plan', 'Wartezeit nach Retry-After; nach Obergrenze Status „Fehler“ mit Grund; Wiederaufnahme per Hand.']], a: 'Dauerhafter Fehler ist in der Oberfläche sichtbar und wiederaufnehmbar.' },
+
+  /* ---------- Workflows ---------- */
+  { id: 'W01', k: 'W', t: 'Bestätigter HR-Austritt → Fall und Rückwärtsplan', p: 'hoch', m: 'M4', dep: ['D4', 'R08'],
+    d: [['Auslöser', 'Bestätigtes Austrittsereignis des HR-Systems.'], ['Voraussetzungen', 'Eindeutige Beschäftigungs-ID; letzter Arbeitstag bestätigt.'], ['Automatisch', 'Fall anlegen, Aufgaben vorschlagen, Termine rückwärts planen.'], ['Menschliche Entscheidung', 'Führungskraft bestätigt Aufgabenliste und Priorität.'], ['Fehlerbehandlung', 'Ungültige oder doppelte Ereignisse landen in einer Prüfliste.']],
+    a: 'Dasselbe Ereignis zweimal erzeugt genau einen Fall.' },
+  { id: 'W02', k: 'W', t: 'Fehlende Nachfolge → Vertretungsentscheidung', p: 'hoch', m: 'M4', dep: ['W01', 'R06'],
+    d: [['Auslöser', 'Fall ohne bestätigte Nachfolge nach Frist.'], ['Voraussetzungen', 'Fall aktiv.'], ['Automatisch', 'Aufgabe „Vertretung festlegen“, Blockierung kritischer Aufgaben.'], ['Menschliche Entscheidung', 'Führungskraft benennt Vertretung.'], ['Fehlerbehandlung', 'Ohne Entscheidung Eskalation (W06).']],
+    a: 'Ohne bestätigte Vertretung sind kritische Aufgaben sichtbar blockiert.' },
+  { id: 'W03', k: 'W', t: 'Bestätigte Nachfolge/Vertretung → Aufgaben- und Terminprüfung', p: 'mittel', m: 'M4', dep: ['W02'],
+    d: [['Auslöser', 'Nachfolge oder Vertretung bestätigt.'], ['Voraussetzungen', 'Person verfügbar laut Personendaten.'], ['Automatisch', 'Zuordnung prüfen, blockierte Termine freigeben, Neuplanung vorschlagen.'], ['Menschliche Entscheidung', 'Bestätigung der Neuplanung.'], ['Fehlerbehandlung', 'Konflikte bleiben als Hinweis sichtbar.']],
+    a: 'Nach Bestätigung entfallen die zugehörigen Blockierungen, soweit die Person verfügbar ist.' },
+  { id: 'W04', k: 'W', t: 'Geänderter letzter Arbeitstag → Neuplanung bestehender Termine', p: 'mittel', m: 'M4', dep: ['W01', 'G07'],
+    d: [['Auslöser', 'Änderung des letzten Arbeitstags im HR-System.'], ['Voraussetzungen', 'Fall und Termine vorhanden.'], ['Automatisch', 'Neuplanungsvorschlag berechnen.'], ['Menschliche Entscheidung', 'Führungskraft übernimmt oder verwirft den Vorschlag.'], ['Fehlerbehandlung', 'Fehlgeschlagene Änderung eines Kalendertermins bleibt als Auftrag sichtbar.']],
+    a: 'Mehrfache Änderung erzeugt keine doppelten Termine.' },
+  { id: 'W05', k: 'W', t: 'Freigegebener Termin → Graph-Einladung', p: 'hoch', m: 'M3', dep: ['G07'],
+    d: [['Auslöser', 'Termin wird freigegeben.'], ['Voraussetzungen', 'Organisatorpostfach und Teilnehmende vorhanden.'], ['Automatisch', 'Outbox-Auftrag, Einladung erzeugen, Graph-ID speichern.'], ['Menschliche Entscheidung', 'Freigabe des Termins.'], ['Fehlerbehandlung', 'Wiederholung mit Retry-After, danach sichtbarer Fehler.']],
+    a: 'Eine Freigabe erzeugt genau eine Einladung.' },
+  { id: 'W06', k: 'W', t: 'Überschrittene Frist → begrenzte Erinnerung und Eskalation', p: 'mittel', m: 'M4', dep: [],
+    d: [['Auslöser', 'Frist verstrichen.'], ['Voraussetzungen', 'Aufgabe offen, Verantwortliche bekannt.'], ['Automatisch', 'Erinnerung mit Obergrenze, danach Eskalation an Führungskraft.'], ['Menschliche Entscheidung', 'Verlängerung oder Umverteilung.'], ['Fehlerbehandlung', 'Zustellfehler werden sichtbar.']],
+    a: 'Nicht mehr als die festgelegte Zahl an Erinnerungen je Aufgabe.' },
+  { id: 'W07', k: 'W', t: 'Eingereichter Nachweis → fachliche Prüfung oder Nacharbeit', p: 'hoch', m: 'M2', dep: ['R02', 'R03'],
+    d: [['Auslöser', 'Nachweis eingereicht.'], ['Voraussetzungen', 'Prüfende Person ist nicht die dokumentierende.'], ['Automatisch', 'Aufgabe an Prüfende zuweisen.'], ['Menschliche Entscheidung', 'bestanden oder Nacharbeit mit Begründung.'], ['Fehlerbehandlung', 'Ohne Prüfung nach Frist: Eskalation.']],
+    a: 'Prüfergebnis und Prüfende werden im Audit festgehalten.' },
+  { id: 'W08', k: 'W', t: 'Fortführungsentscheidungen → versionierter Onboarding-Plan', p: 'hoch', m: 'M2', dep: ['R05'],
+    d: [['Auslöser', 'Entscheidungen weiterführen/verbessern/einstellen gespeichert.'], ['Voraussetzungen', 'Nachfolge festgelegt.'], ['Automatisch', 'Neue Planversion mit stabilen Lernaufgaben.'], ['Menschliche Entscheidung', 'Führungskraft bestätigt Entscheidungen.'], ['Fehlerbehandlung', 'Fehler bricht die Transaktion ab.']],
+    a: 'Neue Version enthält bisherigen Fortschritt.' },
+  { id: 'W09', k: 'W', t: 'Eintritt der Nachfolge → berechtigter Zugriff und Lernplan', p: 'mittel', m: 'M4', dep: ['W08', 'R01'],
+    d: [['Auslöser', 'Eintrittsdatum erreicht.'], ['Voraussetzungen', 'Identität der Person im System.'], ['Automatisch', 'Fallrecht vergeben, Lernplan sichtbar schalten.'], ['Menschliche Entscheidung', 'Keine, außer Ausnahmen.'], ['Fehlerbehandlung', 'Fehlende Identität wird gemeldet.']],
+    a: 'Zugriff nur ab Eintritt und nur auf freigegebene Inhalte.' },
+  { id: 'W10', k: 'W', t: 'Transferabschluss → Register und Pflegeverantwortung aktualisieren', p: 'mittel', m: 'M2', dep: ['F04', 'F05'],
+    d: [['Auslöser', 'Alle Aufgaben abgenommen oder entschieden.'], ['Voraussetzungen', 'Wissensversionen freigegeben.'], ['Automatisch', 'Registerprojektion über Outbox.'], ['Menschliche Entscheidung', 'Pflegeverantwortliche Person bestätigt.'], ['Fehlerbehandlung', 'Wiederholung; Fehler sichtbar.']],
+    a: 'Register zeigt nur freigegebene Stände und eine Pflegeverantwortung.' },
+  { id: 'W11', k: 'W', t: 'Ablauf einer Aufbewahrungsfrist → zulässige Löschung oder Anonymisierung', p: 'mittel', m: 'M5', dep: ['S06'],
+    d: [['Auslöser', 'Aufbewahrungsfrist je Datenkategorie abgelaufen.'], ['Voraussetzungen', 'Fristen von HR und Datenschutz festgelegt.'], ['Automatisch', 'Löschvorschlag erstellen.'], ['Menschliche Entscheidung', 'Freigabe der Löschung oder Anonymisierung.'], ['Fehlerbehandlung', 'Backups und Protokolle nach festgelegter Regel.']],
+    a: 'Abgelaufene Daten werden nach Freigabe gelöscht oder anonymisiert und das ist nachweisbar.' },
+
+  /* ---------- Sicherheit & Datenschutz (Freigabebedingungen) ---------- */
+  { id: 'S01', k: 'S', t: 'Entra-Anmeldung, MFA-Richtlinie und fallbezogene Rechte', p: 'hoch', m: 'M1', dep: ['D3'], d: [['Maßnahme', 'Anmeldung über Entra; MFA nach Richtlinie des Unternehmens; Rechte je Fall.']], a: 'Zugriff ohne Anmeldung nicht möglich; Rechte je Fall getestet.' },
+  { id: 'S02', k: 'S', t: 'Serverseitige Validierung, sichere Ausgabe, HTTPS, sichere Sitzungen, CSRF-Schutz', p: 'hoch', m: 'M1', dep: ['F12'], d: [['Maßnahme', 'Eingaben serverseitig prüfen, Ausgabe maskieren, HTTPS erzwingen, Sitzungs-Cookies absichern, CSRF-Schutz.']], a: 'Sicherheitstests (u. a. XSS, CSRF) ohne offene Befunde.' },
+  { id: 'S03', k: 'S', t: 'Geheimnisverwaltung, getrennte Umgebungen, geschützter Datenbankzugang', p: 'hoch', m: 'M1', dep: ['D7'], d: [['Maßnahme', 'Geheimnisse nicht im Code; Entwicklung, Test, Produktion getrennt; Datenbank nicht öffentlich erreichbar.']], a: 'Kein Geheimnis im Repository; Datenbank nur aus dem Backend-Netz erreichbar.' },
+  { id: 'S04', k: 'S', t: 'Audit, minimierte Betriebslogs und Rechteentzug', p: 'hoch', m: 'M1', dep: ['F09'], d: [['Maßnahme', 'Audit der fachlichen Aktionen; Betriebslogs ohne Inhaltsdaten; Rechte werden bei Austritt oder Rollenwechsel entzogen.']], a: 'Logs enthalten keine Wissensinhalte; Rechteentzug greift am letzten Tag.' },
+  { id: 'S05', k: 'S', t: 'Zweck, Rechtsgrundlage, Datenminimierung und Informationspflichten', p: 'hoch', m: 'M0', dep: ['D6'], legal: true, d: [['Prüfung', 'Zweck und Rechtsgrundlage der Verarbeitung, welche Daten nötig sind, wie Betroffene informiert werden.']], a: 'Schriftliche Bewertung von HR/Datenschutz liegt vor.' },
+  { id: 'S06', k: 'S', t: 'Aufbewahrungsfristen je Datenkategorie', p: 'hoch', m: 'M0', dep: ['D6'], legal: true, d: [['Prüfung', 'Fristen für Fallakten, Wissenseinträge, Audit und Logs festlegen.']], a: 'Fristenkatalog von HR/Datenschutz freigegeben.' },
+  { id: 'S07', k: 'S', t: 'Auskunft, Berichtigung, Löschung und Backup-Behandlung', p: 'mittel', m: 'M5', dep: ['S06'], legal: true, d: [['Prüfung', 'Abläufe für Betroffenenrechte, einschließlich Umgang mit Sicherungen.']], a: 'Abläufe dokumentiert und einmal im Probelauf durchgespielt.' },
+  { id: 'S08', k: 'S', t: 'Auftragsverarbeitung und mögliche Drittlandzugriffe', p: 'hoch', m: 'M0', dep: ['D7'], legal: true, d: [['Prüfung', 'Verträge mit Dienstleistern; Datenfluss in Drittländer bewerten. Eine EU-Hostingregion allein ist kein Nachweis.']], a: 'Bewertung und Verträge von HR/Datenschutz bestätigt.' },
+  { id: 'S09', k: 'S', t: 'Prüfung einer Datenschutz-Folgenabschätzung', p: 'hoch', m: 'M0', dep: ['S05'], legal: true, d: [['Prüfung', 'Ob eine Folgenabschätzung nötig ist, entscheidet der Datenschutz.']], a: 'Ergebnis der Prüfung dokumentiert.' },
+  { id: 'S10', k: 'S', t: 'Beteiligung der Arbeitnehmervertretung', p: 'hoch', m: 'M0', dep: [], legal: true, d: [['Prüfung', 'Erforderliche Beteiligung vor Einführung klären.']], a: 'Beteiligung geklärt und dokumentiert.' },
+
+  /* ---------- Offene Entscheidungen ---------- */
+  { id: 'D1', k: 'D', t: 'Prozessregeln: Prüfstufen, Abnahme, Sonderfälle', p: 'hoch', m: 'M0', dep: [], d: [['Frage', 'Welche Prüfstufen gelten je Priorität, wer darf prüfen und abnehmen, wann gilt ein Sonderfall?']], a: 'Beschlossene Regeltabelle liegt vor.' },
+  { id: 'D2', k: 'D', t: 'Datenmodell', p: 'hoch', m: 'M0', dep: [], d: [['Frage', 'Entitäten, Beziehungen und Verantwortliche abnehmen.']], a: 'Freigegebenes Datenmodell.' },
+  { id: 'D3', k: 'D', t: 'Rollen und Rechte', p: 'hoch', m: 'M0', dep: ['D1'], d: [['Frage', 'Rollen, Fallrechte, Vertretungen.']], a: 'Rollenmatrix beschlossen.' },
+  { id: 'D4', k: 'D', t: 'HR-Eingang', p: 'hoch', m: 'M0', dep: [], d: [['Frage', 'Welches HR-System liefert bestätigte Austrittsdaten, in welcher Form?']], a: 'Quelle und Format entschieden.' },
+  { id: 'D5', k: 'D', t: 'Organisatorpostfach', p: 'hoch', m: 'M0', dep: [], d: [['Frage', 'Welches Postfach organisiert die Termine?']], a: 'Postfach benannt.' },
+  { id: 'D6', k: 'D', t: 'Datenschutz-Rahmen', p: 'hoch', m: 'M0', dep: [], legal: true, d: [['Frage', 'Rahmen mit HR und Datenschutz klären.']], a: 'Rahmen schriftlich bestätigt.' },
+  { id: 'D7', k: 'D', t: 'Hosting', p: 'mittel', m: 'M0', dep: [], d: [['Frage', 'Wo und bei wem wird betrieben? (Vorschlag offen, keine Festlegung.)']], a: 'Hosting beschlossen.' },
+  { id: 'D8', k: 'D', t: 'Technologieauswahl', p: 'mittel', m: 'M0', dep: [], d: [['Frage', 'Sprache und Framework des Backends. (Vorschlag offen, keine Festlegung.)']], a: 'Technik beschlossen.' },
+  { id: 'D9', k: 'D', t: 'Ein-Tenant- oder Mehr-Tenant-Betrieb', p: 'mittel', m: 'M0', dep: [], d: [['Frage', 'Wird für ein Unternehmen oder für mehrere betrieben?']], a: 'Betriebsmodell beschlossen.' }
+];
+
+const PROD_ARCH = [
+  ['Browser', 'Oberfläche. Hält keine fachliche Wahrheit und keine Berechtigungsentscheidung.'],
+  ['Backend/API mit Entra-Anmeldung', 'Modularer Backend-Dienst. Prüft jede Aktion serverseitig und schreibt in Transaktionen.'],
+  ['PostgreSQL', 'Einzige Datenquelle für Fälle, Wissen, Onboarding, Termine und Audit. Enthält die transaktionale Outbox.'],
+  ['Hintergrund-Worker', 'Verarbeitet persistente Workflow- und Graph-Aufträge aus der Outbox mit Wiederholung.'],
+  ['Microsoft Graph / Outlook', 'Termine und Teilnehmerantworten. Rückmeldungen über validierten Webhook-Eingang.'],
+  ['HR-System', 'Bestätigte Beschäftigungs- und Austrittsdaten; ein bestätigter Eingang löst einen Exit-Fall aus.'],
+  ['Geheimnisverwaltung & Monitoring', 'Schlüssel nicht im Code; Überwachung von Aufträgen, Fehlern und Webhook-Erneuerung.']
+];
+const PROD_ROLES = [
+  ['HR-System', 'Bestätigte Beschäftigungs- und Austrittsdaten'],
+  ['Diese App', 'Wissenstransfer, Verantwortlichkeiten, Nachweise und Abnahmen'],
+  ['Outlook', 'Termine und Teilnehmerantworten']
+];
+const PROD_MODEL = [
+  ['Personen & Organisation', 'Personen, Benutzeridentitäten, Organisationseinheiten, Fallberechtigungen'],
+  ['Exit-Fälle', 'Exit-Fälle, Aufgaben, Vertretungen, Verantwortungszuordnungen, Entscheidungen'],
+  ['Prüfung', 'Prüfergebnisse, Durchführungsversuche, Nacharbeit, Belegverweise'],
+  ['Wissen', 'Wissenseinträge, Inhaltsversionen, Quellen, Freigaben'],
+  ['Onboarding', 'Onboarding-Pläne, Planversionen, stabile Lernaufgaben, Fortschritt'],
+  ['Termine & Graph', 'Termine, Teilnehmerantworten, Graph-Zuordnungen, Synchronisationsstände'],
+  ['Betrieb', 'HR-Eingangsereignisse, Workflow-Läufe, Outbox-Aufträge, Audit']
+];
+/* ================= Produktionsreife & Umsetzung: Ansicht und Steuerung =================
+   Planungsbereich. Keine Anmeldung, kein Backend, keine Graph-Anbindung.
+   Eigene lokale Speicherung (getrennt vom Demo-Zustand), mit sichtbarer Fehlermeldung. */
+const PS_KEY = 'wissen-bleibt-plan-v1';
+let PS = { v: 1, items: {}, f: { p: '', m: '', s: '', k: '', q: '' } }, PS_ERR = '';
+function psLoad() {
+  try {
+    const r = localStorage.getItem(PS_KEY); if (!r) return;
+    const o = JSON.parse(r);
+    if (!o || o.v !== 1 || typeof o.items !== 'object') throw new Error('Format');
+    PS = { v: 1, items: o.items || {}, f: Object.assign({ p: '', m: '', s: '', k: '', q: '' }, o.f || {}) };
+  } catch (e) { PS_ERR = 'Die gespeicherten Planungsdaten konnten nicht gelesen werden. Es gelten Standardwerte (alles „Offen“); der alte Stand wird erst beim nächsten Speichern überschrieben.'; }
+}
+function psSave() {
+  try { localStorage.setItem(PS_KEY, JSON.stringify(PS)); PS_ERR = ''; return true; }
+  catch (e) { PS_ERR = 'Die Planungsdaten konnten nicht gespeichert werden (Browser-Speicher voll, gesperrt oder privates Fenster). Änderungen gelten nur, bis du die Seite schließt. Exportiere den Plan als Markdown, um ihn zu sichern.'; return false; }
+}
+const psOf = id => Object.assign({ status: 'offen', owner: '', due: '', note: '', evidence: '', at: '' }, PS.items[id] || {});
+const pItem = id => PROD_ITEMS.find(x => x.id === id);
+const pSt = k => PROD_ST.find(s => s[0] === k) || PROD_ST[0];
+const pStChip = k => { const s = pSt(k); return chip(s[2], s[1]); };
+const pPrioChip = p => chip(p === 'hoch' ? 'crit' : p === 'mittel' ? 'warn' : 'neutral', 'Priorität ' + p);
+const pDone = id => psOf(id).status === 'abgenommen';
+const pOpenDeps = m => m.dep.filter(d => !pDone(d));
+const pBlocker = m => m.p === 'hoch' && !pDone(m.id);
+
+function pStats() {
+  const n = PROD_ITEMS.length, by = k => PROD_ITEMS.filter(m => psOf(m.id).status === k).length;
+  return {
+    n, done: by('abgenommen'), work: by('arbeit'), blocked: by('blockiert'), review: by('pruefung'), open: by('offen'),
+    pct: Math.round(by('abgenommen') / n * 100),
+    decOpen: PROD_ITEMS.filter(m => m.k === 'D' && !pDone(m.id)).length, decN: PROD_ITEMS.filter(m => m.k === 'D').length,
+    blockers: PROD_ITEMS.filter(pBlocker).length
+  };
+}
+function pMsStats(ms) { const l = PROD_ITEMS.filter(m => m.m === ms); return { n: l.length, done: l.filter(m => pDone(m.id)).length }; }
+function pFiltered(list) {
+  const f = PS.f, q = (f.q || '').toLowerCase();
+  return list.filter(m => (!f.p || m.p === f.p) && (!f.m || m.m === f.m) && (!f.s || psOf(m.id).status === f.s) && (!f.k || m.k === f.k) && (!q || (m.id + ' ' + m.t + ' ' + (m.file || '') + ' ' + (psOf(m.id).owner || '')).toLowerCase().includes(q)));
+}
+
+/* ---------- Bausteine ---------- */
+const P_TABS = [['uebersicht', 'Überblick'], ['befunde', 'Code-Befunde'], ['architektur', 'Architektur'], ['modell', 'Datenmodell & Regeln'], ['graph', 'Outlook / Graph'], ['workflows', 'Workflows'], ['sicherheit', 'Sicherheit & Datenschutz'], ['fahrplan', 'Fahrplan'], ['steuerung', 'Maßnahmen']];
+const pTag = {
+  conf: st => chip(st === 'bestätigt' ? 'ok' : 'warn', 'Code-Befund ' + st, st === 'bestätigt' ? '✓' : '~'),
+  arch: () => chip('info', 'Architekturvorschlag'),
+  dec: () => chip('warn', 'Offene Entscheidung', '?'),
+  legal: () => chip('demo', 'Durch HR/Datenschutz zu prüfen'),
+  verify: () => chip('warn', 'Technisch zu verifizieren')
+};
+const pDemoNote = () => note('demo', 'i', '<strong>Planungsbereich – nichts davon ist produktiv.</strong> Datenbank, Outlook und Automatisierungen sind in dieser App weiterhin <strong>simuliert</strong>. Es werden keine Mails oder Termine versendet, es gibt keine echte Anmeldung und kein Backend. Die Kennzahlen zeigen den <strong>Planungsfortschritt</strong>, keine Produktionsreife.');
+const pErrNote = () => PS_ERR ? `<div role="alert">${note('crit', '!', esc(PS_ERR))}</div>` : '';
+
+function pFilterBar(kinds) {
+  const f = PS.f, sel = (key, label, opts) => `<div class="field"><label for="pf-${key}">${label}</label><select class="input" id="pf-${key}" data-pf="${key}">${opt('', 'Alle', f[key] || '')}${opts.map(([v, l]) => opt(v, l, f[key])).join('')}</select></div>`;
+  return `<form class="card pf-filter" aria-label="Filter" onsubmit="return false">${sel('p', 'Priorität', [['hoch', 'Hoch'], ['mittel', 'Mittel'], ['niedrig', 'Niedrig']])}${sel('m', 'Meilenstein', PROD_MS.map(m => [m[0], m[0] + ' · ' + m[1]]))}${sel('s', 'Status', PROD_ST.map(s => [s[0], s[1]]))}${kinds ? sel('k', 'Art', Object.entries(PROD_KIND)) : ''}<div class="field pf-q"><label for="pf-q">Suchen</label><input class="input" type="search" id="pf-q" data-pf="q" value="${esc(f.q || '')}" placeholder="ID, Titel, Verantwortliche …"></div>${(f.p || f.m || f.s || f.k || f.q) ? `<div class="field"><label>&nbsp;</label><button type="button" class="btn btn-sm" data-act="prodFilterReset">Filter zurücksetzen</button></div>` : ''}</form>`;
+}
+function pMeta(m) {
+  const s = psOf(m.id), od = pOpenDeps(m);
+  return `<p class="small muted pf-meta">${s.owner ? 'Verantwortlich: ' + esc(s.owner) : 'Keine verantwortliche Person'} · ${s.due ? 'Zieltermin ' + esc(D.fmt(s.due)) : 'Kein Zieltermin'}${m.dep.length ? ' · Abhängig von: ' + m.dep.map(d => `<span class="mono">${d}</span>${pDone(d) ? ' ✓' : ''}`).join(', ') : ''}</p>${od.length && s.status !== 'abgenommen' ? `<p class="small pf-dep">Vorher abzunehmen: ${od.map(d => `<span class="mono">${d}</span>`).join(', ')}</p>` : ''}${s.note ? `<p class="small pf-note"><strong>Notiz:</strong> ${esc(s.note)}</p>` : ''}${s.evidence ? `<p class="small pf-ev"><strong>Nachweis:</strong> ${esc(s.evidence)}</p>` : ''}`;
+}
+function pTags(m) {
+  let t = '';
+  if (m.k === 'F') t += pTag.conf(m.st); else if (m.k === 'D') t += pTag.dec(); else t += pTag.arch();
+  if (m.legal) t += pTag.legal();
+  if (m.k === 'G' && /verifizieren/i.test(JSON.stringify(m.d))) t += pTag.verify();
+  return t;
+}
+function pCard(m) {
+  const s = psOf(m.id);
+  const dl = m.d.map(([l, x]) => `<div><dt>${esc(l)}</dt><dd>${esc(x)}</dd></div>`).join('');
+  return `<article class="card stack pf-card" id="pi-${m.id}" aria-labelledby="pt-${m.id}">
+    <div class="pf-head"><span class="mono pf-id">${m.id}</span><h3 id="pt-${m.id}">${esc(m.t)}</h3></div>
+    <div class="row pf-chips">${pTags(m)}${pPrioChip(m.p)}${chip('neutral', m.m)}${pStChip(s.status)}</div>
+    ${m.file ? `<p class="small muted pf-file">Betrifft: <span class="mono">${esc(m.file)}</span></p>` : ''}
+    <dl class="pf-dl">${dl}<div class="pf-acc"><dt>Abnahmekriterium</dt><dd>${esc(m.a)}</dd></div></dl>
+    ${pMeta(m)}
+    <div class="btn-row"><button type="button" class="btn btn-sm" data-act="prodEdit" data-id="${m.id}">Status &amp; Nachweis bearbeiten</button></div></article>`;
+}
+function pList(kinds, empty_ = 'Keine Maßnahmen für diese Filter.') {
+  const l = pFiltered(PROD_ITEMS.filter(m => kinds.includes(m.k)));
+  return l.length ? `<div class="pf-list">${l.map(pCard).join('')}</div>` : empty('Nichts gefunden', empty_);
+}
+
+/* ---------- Ansicht ---------- */
+VIEWS.prod = (p = {}) => {
+  const tab = p.tab || 'uebersicht', st = pStats();
+  const tabs = `<div class="tabs" role="tablist" aria-label="Bereiche der Produktionsplanung">${P_TABS.map(([k, l]) => `<button type="button" class="tab" role="tab" aria-selected="${tab === k}" tabindex="${tab === k ? 0 : -1}" data-act="go" data-v="prod" data-p='${esc(JSON.stringify({ tab: k }))}'>${l}</button>`).join('')}</div>`;
+  const head = `<header class="page-head"><div><p class="eyebrow">Planung &amp; Betrieb</p><h1>Produktionsreife &amp; Umsetzung</h1><p class="lead">Was im Prototyp vorhanden ist, was für den Betrieb fehlt und in welcher Reihenfolge es umgesetzt werden könnte. Befunde stammen aus dem Quellcode, Architektur ist ein Vorschlag, Offenes ist als Entscheidung markiert.</p></div>
+    <div class="btn-row"><button type="button" class="btn" data-act="prodExport">Plan als Markdown exportieren</button></div></header>`;
+  const legend = `<p class="small muted pf-legend">Kennzeichnung: ${pTag.conf('bestätigt')} ${pTag.arch()} ${pTag.dec()} ${pTag.legal()}</p>`;
+  const body = { uebersicht: pOverview, befunde: pFindings, architektur: pArch, modell: pModel, graph: pGraph, workflows: pFlows, sicherheit: pSecurity, fahrplan: pRoadmap, steuerung: pControl }[tab] || pOverview;
+  return `${head}${pDemoNote()}${pErrNote()}${tabs}<div class="pf-body">${legend}${body(st)}</div>`;
+};
+
+function pOverview(st) {
+  const kpi = (n, l, sub, go_) => `<button type="button" class="kpi2 pf-kpi" data-act="go" data-v="prod" data-p='${esc(JSON.stringify(go_))}'><span class="kpi-num">${n}</span><strong>${l}</strong><span class="small muted">${sub}</span></button>`;
+  const blockers = PROD_ITEMS.filter(pBlocker), decs = PROD_ITEMS.filter(m => m.k === 'D' && !pDone(m.id));
+  return `<div class="kpis pf-kpis">${kpi(st.pct + ' %', 'Planungsfortschritt', `${st.done} von ${st.n} Maßnahmen abgenommen – keine Aussage zur Produktionsreife`, { tab: 'steuerung' })}${kpi(st.work + st.review, 'In Arbeit oder zur Prüfung', `${st.work} in Arbeit · ${st.review} zur Prüfung`, { tab: 'steuerung' })}${kpi(st.blocked, 'Blockiert', 'Maßnahmen mit Status „Blockiert“', { tab: 'steuerung' })}${kpi(st.decOpen + ' / ' + st.decN, 'Offene Entscheidungen', 'Noch nicht mit Nachweis entschieden', { tab: 'steuerung' })}${kpi(st.blockers, 'Produktionsblockierende Lücken', 'Priorität hoch und noch nicht abgenommen', { tab: 'befunde' })}</div>
+  <section class="stack" style="margin-top:28px" aria-labelledby="pf-h-str"><h2 id="pf-h-str">Was bereits trägt</h2><p class="muted">Diese Stärken sind im Prototyp vorhanden. Sie sind fachlich ausgearbeitet, aber nur im Browser lauffähig.</p>
+    <div class="grid-3">${PROD_STRENGTHS.map(([t, x]) => `<div class="card stack-s"><h3 style="margin:0">${esc(t)}</h3><p class="small" style="margin:0">${esc(x)}</p></div>`).join('')}</div></section>
+  <section class="stack" style="margin-top:28px" aria-labelledby="pf-h-gap"><h2 id="pf-h-gap">Was fehlt: Code-Befunde</h2><p class="muted">Alle 13 Befunde wurden gegen den Quellcode geprüft. Zwei sind nur teilweise zutreffend und mit Korrektur versehen (F08, F12). Kein Befund ist hinfällig.</p>
+    <div class="tablewrap"><table class="pf-table"><thead><tr><th scope="col">ID</th><th scope="col">Befund</th><th scope="col">Priorität</th><th scope="col">Stand</th></tr></thead><tbody>${PROD_ITEMS.filter(m => m.k === 'F').map(m => `<tr><td class="mono">${m.id}</td><td><button type="button" class="linkbtn" data-act="prodJump" data-tab="befunde" data-id="${m.id}">${esc(m.t)}</button></td><td>${pPrioChip(m.p)}</td><td>${pStChip(psOf(m.id).status)}</td></tr>`).join('')}</tbody></table></div></section>
+  <section class="stack" style="margin-top:28px" aria-labelledby="pf-h-dec"><h2 id="pf-h-dec">Offene Entscheidungen</h2>${decs.length ? `<ul class="plain pf-decs">${decs.map(m => `<li class="row"><span class="mono">${m.id}</span><span>${esc(m.t)}</span>${m.legal ? pTag.legal() : ''}${pStChip(psOf(m.id).status)}</li>`).join('')}</ul>` : note('ok', '✓', 'Alle Entscheidungen sind mit Nachweis abgenommen.')}</section>
+  <section class="stack" style="margin-top:28px" aria-labelledby="pf-h-blk"><h2 id="pf-h-blk">Produktionsblockierende Lücken</h2><p class="muted">Maßnahmen mit Priorität „hoch“, die noch nicht abgenommen sind: <strong>${blockers.length}</strong> von ${PROD_ITEMS.filter(m => m.p === 'hoch').length}.</p>
+    <ul class="plain pf-decs">${blockers.slice(0, 12).map(m => `<li class="row"><span class="mono">${m.id}</span><span>${esc(m.t)}</span>${chip('neutral', m.m)}</li>`).join('')}</ul>${blockers.length > 12 ? `<button type="button" class="btn btn-sm" data-act="prodBlockers">Alle ${blockers.length} anzeigen</button>` : ''}</section>`;
+}
+function pFindings() {
+  return `${pFilterBar(false)}<p class="muted">Jeder Befund nennt Datei und Funktion, Auswirkung, Maßnahme und Abnahmekriterium. „Teilweise bestätigt“ heißt: Der Befund trifft zu, aber nicht in jedem Punkt – die Korrektur steht im Text.</p>${pList(['F'])}`;
+}
+function pArch() {
+  return `<section class="stack" aria-labelledby="pf-h-ar"><div class="row">${pTag.arch()}</div><h2 id="pf-h-ar">Empfohlene Zielarchitektur</h2>
+  <p>Browser → Backend/API mit Entra-Anmeldung → PostgreSQL. Ein Hintergrund-Worker verarbeitet persistente Workflow- und Graph-Aufträge. Microsoft Graph liefert Kalenderänderungen über einen validierten Webhook-Eingang zurück. Ein bestätigter HR-Eingang löst Exit-Fälle aus.</p>
+  <ol class="pf-flow" aria-label="Datenfluss"><li>Browser</li><li>Backend/API (Entra)</li><li>PostgreSQL + Outbox</li><li>Worker</li><li>Microsoft Graph</li><li>Outlook</li></ol>
+  <p class="small muted">Rückweg: Graph → Webhook-Eingang des Backends → Datenbank. Eingang: HR-System → bestätigtes Ereignis → Backend.</p>
+  <div class="grid-3">${PROD_ARCH.map(([t, x]) => `<div class="card stack-s"><h3 style="margin:0">${esc(t)}</h3><p class="small" style="margin:0">${esc(x)}</p></div>`).join('')}</div></section>
+  <section class="stack" style="margin-top:28px" aria-labelledby="pf-h-vr"><h2 id="pf-h-vr">Verantwortlichkeiten</h2><div class="grid-3">${PROD_ROLES.map(([t, x]) => `<div class="card stack-s"><h3 style="margin:0">${esc(t)}</h3><p class="small" style="margin:0">${esc(x)}</p></div>`).join('')}</div>
+  ${note('warn', '!', '<strong>Eine Kalenderzusage ist niemals eine fachliche Abnahme.</strong> Outlook meldet nur Antworten auf Einladungen. Durchführung, Prüfung und Abnahme laufen ausschließlich in der App.')}</section>
+  <section class="stack" style="margin-top:28px" aria-labelledby="pf-h-vs"><h2 id="pf-h-vs">Vorschlag zum Aufbau</h2><ul class="pf-bul"><li><strong>Modularer Backend-Dienst</strong> statt vieler Dienste – die Fachlogik bleibt in einem Prozess und einer Transaktionsgrenze.</li><li><strong>PostgreSQL</strong> als einzige Datenquelle mit Fremdschlüsseln und Migrationen.</li><li><strong>Transaktionale Outbox:</strong> Datenänderung und Auftrag werden gemeinsam gespeichert, der Worker liefert danach aus.</li><li><strong>Hintergrund-Worker</strong> mit Wiederholung, Fehlerstatus und manueller Wiederaufnahme.</li><li><strong>Sichere Geheimnisverwaltung</strong> und <strong>Monitoring</strong> für Aufträge, Webhooks und Fehler.</li></ul></section>
+  <section class="stack" style="margin-top:28px" aria-labelledby="pf-h-ed"><h2 id="pf-h-ed">Noch zu beschließen</h2><p class="muted">Hosting, Technologieauswahl und Ein-/Mehr-Mandanten-Betrieb sind ausdrücklich nicht festgelegt.</p>${pList(['D'])}</section>`;
+}
+function pModel() {
+  return `<section class="stack" aria-labelledby="pf-h-dm"><div class="row">${pTag.arch()}</div><h2 id="pf-h-dm">Datenmodell – Bereiche</h2><p class="muted">Vorschlag der Bereiche und Entitäten. Das Modell selbst ist Entscheidung D2.</p><div class="grid-3">${PROD_MODEL.map(([t, x]) => `<div class="card stack-s"><h3 style="margin:0">${esc(t)}</h3><p class="small" style="margin:0">${esc(x)}</p></div>`).join('')}</div></section>
+  <section class="stack" style="margin-top:28px" aria-labelledby="pf-h-fr"><h2 id="pf-h-fr">Verbindliche Fachregeln für die Umsetzung</h2>${pFilterBar(false)}${pList(['R'])}</section>`;
+}
+function pGraph() {
+  return `${note('warn', '!', '<strong>Geplant, nicht umgesetzt.</strong> Es gibt keine Microsoft-Graph-Anbindung. Die genaue Berechtigungswahl ist technisch zu verifizieren; Entra-Freigaben und Exchange Application RBAC müssen zusammen geprüft werden.')}${pFilterBar(false)}${pList(['G'])}`;
+}
+function pFlows() { return `<p class="muted">Wiederholte Ereignisse dürfen keine doppelten Fälle, Termine oder Erinnerungen erzeugen. Alle Abläufe sind Plan, nicht Funktion.</p>${pFilterBar(false)}${pList(['W'])}`; }
+function pSecurity() {
+  return `${note('demo', 'i', '<strong>Rechtliche Entscheidungen prüfen HR und Datenschutz.</strong> Ein Wortfilter (SENSITIVE) oder eine EU-Hostingregion ist <strong>kein Nachweis</strong> der DSGVO-Konformität.')}<p class="muted">Diese Punkte sind Freigabebedingungen für den Produktivbetrieb.</p>${pFilterBar(false)}${pList(['S'])}`;
+}
+function pRoadmap() {
+  return `<p class="muted">Der Zeitrahmen von <strong>10–14 Wochen</strong> ist ein unverbindlicher Planungsrahmen. Er setzt ein verfügbares Entwicklungsteam und die nötigen Freigaben voraus.</p>
+  <ol class="pf-road">${PROD_MS.map(([k, t, x, dep]) => { const s = pMsStats(k), pc = s.n ? Math.round(s.done / s.n * 100) : 0; return `<li class="card stack-s"><div class="row pf-chips"><span class="mono pf-id">${k}</span><h3 style="margin:0">${esc(t)}</h3>${dep.length ? `<span class="small muted">nach ${dep.join(', ')}</span>` : '<span class="small muted">Startpunkt</span>'}</div><p class="small" style="margin:0">${esc(x)}</p><div class="progress" role="img" aria-label="${s.done} von ${s.n} abgenommen"><i style="width:${pc}%"></i></div><p class="small muted" style="margin:0">${s.done} von ${s.n} Maßnahmen abgenommen</p><div class="btn-row"><button type="button" class="btn btn-sm" data-act="prodMs" data-m="${k}">Maßnahmen von ${k} anzeigen</button></div></li>`; }).join('')}</ol>`;
+}
+function pControl() {
+  const l = pFiltered(PROD_ITEMS), st = pStats();
+  const row = m => { const s = psOf(m.id); return `<tr><td class="mono">${m.id}</td><td>${esc(m.t)}<div class="small muted">${esc(PROD_KIND[m.k])} · ${m.m}</div></td><td>${pPrioChip(m.p)}</td><td>${pStChip(s.status)}</td><td class="small">${esc(s.owner || '–')}</td><td class="small">${s.due ? esc(D.fmt(s.due)) : '–'}</td><td class="small">${m.dep.length ? m.dep.map(d => `<span class="mono">${d}${pDone(d) ? '✓' : ''}</span>`).join(' ') : '–'}</td><td><button type="button" class="btn btn-sm" data-act="prodEdit" data-id="${m.id}" aria-label="${esc(m.id + ' bearbeiten')}">Bearbeiten</button></td></tr>`; };
+  return `${pFilterBar(true)}<p class="muted" aria-live="polite">${l.length} von ${st.n} Maßnahmen. Alle Maßnahmen beginnen als „Offen“. Abgenommen werden sie erst mit dokumentiertem Nachweis und abgenommenen Abhängigkeiten.</p>
+  ${l.length ? `<div class="tablewrap"><table class="pf-table"><thead><tr><th scope="col">ID</th><th scope="col">Maßnahme</th><th scope="col">Priorität</th><th scope="col">Status</th><th scope="col">Verantwortlich</th><th scope="col">Zieltermin</th><th scope="col">Abhängig von</th><th scope="col"><span class="sr">Aktion</span></th></tr></thead><tbody>${l.map(row).join('')}</tbody></table></div>` : empty('Nichts gefunden', 'Passe die Filter an.')}
+  <div class="btn-row" style="margin-top:18px"><button type="button" class="btn" data-act="prodExport">Plan als Markdown exportieren</button><button type="button" class="btn btn-ghost" data-act="prodReset">Planung zurücksetzen</button></div>`;
+}
+
+/* ---------- Markdown-Export ---------- */
+function pMarkdown() {
+  const st = pStats(), today = new Date().toISOString().slice(0, 10);
+  let o = `# Produktionsreife & Umsetzung – Wissen bleibt\n\nStand: ${today}\n\n> Planungsstand. Datenbank, Outlook und Automatisierungen sind im Prototyp weiterhin simuliert. Die Kennzahlen zeigen den Planungsfortschritt, keine Produktionsreife.\n\n`;
+  o += `## Übersicht\n\n- Planungsfortschritt: ${st.done} von ${st.n} Maßnahmen abgenommen (${st.pct} %)\n- In Arbeit: ${st.work} · Zur Prüfung: ${st.review} · Blockiert: ${st.blocked} · Offen: ${st.open}\n- Offene Entscheidungen: ${st.decOpen} von ${st.decN}\n- Produktionsblockierende Lücken (Priorität hoch, nicht abgenommen): ${st.blockers}\n\n`;
+  PROD_MS.forEach(([k, t, x, dep]) => {
+    const l = PROD_ITEMS.filter(m => m.m === k); if (!l.length) return;
+    o += `## ${k} – ${t}\n\n${x}${dep.length ? ' (nach ' + dep.join(', ') + ')' : ''}\n\n`;
+    l.forEach(m => {
+      const s = psOf(m.id);
+      o += `### ${m.id} ${m.t}\n\n- Art: ${PROD_KIND[m.k]}${m.k === 'F' ? ' (' + m.st + ')' : ''}${m.legal ? ' · durch HR/Datenschutz zu prüfen' : ''}\n- Priorität: ${m.p}\n- Status: ${pSt(s.status)[1]}\n- Verantwortlich: ${s.owner || '–'}\n- Zieltermin: ${s.due || '–'}\n- Abhängig von: ${m.dep.length ? m.dep.map(d => d + (pDone(d) ? ' (abgenommen)' : '')).join(', ') : '–'}\n`;
+      if (m.file) o += `- Betrifft: ${m.file}\n`;
+      m.d.forEach(([l2, x2]) => { o += `- ${l2}: ${x2}\n`; });
+      o += `- Abnahmekriterium: ${m.a}\n- Nachweis: ${s.evidence || '–'}\n- Notiz: ${s.note || '–'}\n\n`;
+    });
+  });
+  return o;
+}
+
+/* ---------- Aktionen ---------- */
+function pRerender(focusSel) { render(); if (focusSel) { const e = $(focusSel); if (e) { e.focus({ preventScroll: true }); if (e.setSelectionRange && e.value != null && e.type === 'search') { const n = e.value.length; e.setSelectionRange(n, n); } } } }
+Object.assign(ACT, {
+  prodEdit: el => {
+    const m = pItem(el.dataset.id), s = psOf(m.id);
+    const names = Array.from(new Set(Object.values(S.people || {}).map(x => x.name)));
+    modal(`${m.id} · ${esc(m.t)}`, `<form class="form" data-form="prodSave" data-id="${m.id}" novalidate>
+      <p class="small muted">${esc(PROD_KIND[m.k])} · ${pPrioChip(m.p)} · ${m.m}. <strong>Abnahmekriterium:</strong> ${esc(m.a)}</p>
+      <div class="fgrid"><div class="field"><label for="ps-status">Status</label><select class="input" id="ps-status" name="status">${PROD_ST.map(x => opt(x[0], x[1], s.status)).join('')}</select></div>
+      <div class="field"><label for="ps-owner">Verantwortlich</label><input class="input" id="ps-owner" name="owner" list="ps-names" value="${esc(s.owner)}" placeholder="Name oder Rolle"><datalist id="ps-names">${names.map(n => `<option value="${esc(n)}">`).join('')}</datalist></div>
+      <div class="field"><label for="ps-due">Zieltermin</label><input class="input" type="date" id="ps-due" name="due" value="${esc(s.due)}"></div></div>
+      <div class="field"><label for="ps-note">Notiz</label><textarea class="input" id="ps-note" name="note" rows="3">${esc(s.note)}</textarea><span class="hint">Bei „Blockiert“ Pflicht: Grund der Blockierung.</span></div>
+      <div class="field"><label for="ps-ev">Nachweis zum Abnahmekriterium</label><textarea class="input" id="ps-ev" name="evidence" rows="3" placeholder="Beleg, Link, Beschluss, Testergebnis …">${esc(s.evidence)}</textarea><span class="hint">Pflicht für „Abgenommen“. Keine Zugangsdaten oder persönlichen Bewertungen eintragen.</span></div>
+      ${pOpenDeps(m).length ? `<p class="small pf-dep">Noch nicht abgenommene Abhängigkeiten: ${pOpenDeps(m).map(d => d).join(', ')}.</p>` : ''}
+      <div class="btn-row"><button type="submit" class="btn btn-primary">Speichern</button><button type="button" class="btn" data-act="closeModal">Abbrechen</button></div></form>`, true);
+  },
+  prodFilterReset: () => { PS.f = { p: '', m: '', s: '', k: '', q: '' }; psSave(); render(); },
+  prodJump: el => { go('prod', { tab: el.dataset.tab }); setTimeout(() => { const c = $('#pi-' + el.dataset.id); if (c) { c.scrollIntoView({ block: 'start' }); const b = c.querySelector('button'); if (b) b.focus({ preventScroll: true }); } }, 30); },
+  prodBlockers: () => { PS.f = { p: 'hoch', m: '', s: '', k: '', q: '' }; psSave(); go('prod', { tab: 'steuerung' }); },
+  prodMs: el => { PS.f = { p: '', m: el.dataset.m, s: '', k: '', q: '' }; psSave(); go('prod', { tab: 'steuerung' }); },
+  prodExport: () => {
+    const md = pMarkdown();
+    modal('Plan als Markdown', `<p class="small">Der Export enthält Status, Verantwortliche, Zieltermine, Abhängigkeiten, Abnahmekriterien und Nachweise. Er verlässt diese App nicht automatisch.</p><textarea class="input mono" id="pf-md" readonly rows="14" style="width:100%" aria-label="Markdown-Text">${esc(md)}</textarea><div class="btn-row" style="margin-top:12px"><button type="button" class="btn btn-primary" data-act="prodCopy">In Zwischenablage kopieren</button><button type="button" class="btn" data-act="prodDownload">Als Datei speichern</button></div><p class="small muted" id="pf-md-msg" role="status"></p>`, true);
+  },
+  prodCopy: () => {
+    const ta = $('#pf-md'), msg = $('#pf-md-msg'), ok = () => { if (msg) msg.textContent = 'In die Zwischenablage kopiert.'; }, fb = () => { ta.focus(); ta.select(); if (msg) msg.textContent = 'Der Text ist markiert. Kopiere ihn mit Strg/Cmd + C.'; };
+    try { navigator.clipboard.writeText(ta.value).then(ok, fb); } catch (e) { fb(); }
+  },
+  prodDownload: () => {
+    const ta = $('#pf-md'), msg = $('#pf-md-msg');
+    try { const b = new Blob([ta.value], { type: 'text/markdown;charset=utf-8' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'produktionsreife-wissen-bleibt.md'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); if (msg) msg.textContent = 'Datei wird gespeichert, falls der Browser Downloads erlaubt. Sonst den Text kopieren.'; }
+    catch (e) { if (msg) msg.textContent = 'Speichern als Datei ist hier nicht möglich. Bitte den Text kopieren.'; }
+  },
+  prodReset: () => modal('Planung zurücksetzen?', `<p>Alle Status, Verantwortlichen, Zieltermine, Notizen und Nachweise des Planungsbereichs werden gelöscht. Die übrige App bleibt unverändert.</p><div class="btn-row"><button type="button" class="btn btn-primary" data-act="prodResetDo">Planung zurücksetzen</button><button type="button" class="btn" data-act="closeModal">Abbrechen</button></div>`),
+  prodResetDo: () => { PS = { v: 1, items: {}, f: { p: '', m: '', s: '', k: '', q: '' } }; const ok = psSave(); closeModal(); render(); toast(ok ? 'Planung zurückgesetzt.' : 'Zurückgesetzt, aber nicht gespeichert.', ok ? undefined : 'err'); }
+});
+Object.assign(FORM, {
+  prodSave: f => {
+    const m = pItem(f.dataset.id), v = n => ((f.elements[n] && f.elements[n].value) || '').trim(), e = {};
+    const status = v('status'), note_ = v('note'), ev = v('evidence');
+    if (status === 'abgenommen') {
+      if (ev.length < 10) e.evidence = 'Für „Abgenommen“ ist ein dokumentierter Nachweis nötig (mindestens 10 Zeichen).';
+      const od = pOpenDeps(m); if (od.length) e.status = 'Zuerst abzunehmen: ' + od.join(', ') + '.';
+    }
+    if (status === 'blockiert' && note_.length < 5) e.note = 'Beschreibe den Grund der Blockierung.';
+    if (v('due') && !D.ok(v('due'))) e.due = 'Gib ein gültiges Datum an.';
+    if (SENSITIVE.test(note_ + ' ' + ev + ' ' + v('owner'))) e.note = 'Bitte keine Zugangsdaten oder persönlichen Bewertungen eintragen.';
+    if (!showErrors(f, e)) return;
+    PS.items[m.id] = { status, owner: v('owner'), due: v('due'), note: note_, evidence: ev, at: new Date().toISOString() };
+    const ok = psSave(); closeModal(); render();
+    toast(ok ? `${m.id}: Status „${pSt(status)[1]}“ gespeichert.` : `${m.id} geändert, aber nicht gespeichert. Siehe Hinweis oben.`, ok ? undefined : 'err');
+  }
+});
+document.addEventListener('change', ev => {
+  const el = ev.target; if (!el.matches || !el.matches('select[data-pf]')) return;
+  PS.f[el.dataset.pf] = el.value; psSave(); pRerender('#pf-' + el.dataset.pf);
+});
+document.addEventListener('input', ev => {
+  const el = ev.target; if (!el.matches || !el.matches('input[data-pf]')) return;
+  clearTimeout(pTimer); pTimer = setTimeout(() => { PS.f[el.dataset.pf] = el.value; psSave(); pRerender('#pf-' + el.dataset.pf); }, 250);
+});
+let pTimer = null;
+psLoad();
 load();
 render();
 regInit();
