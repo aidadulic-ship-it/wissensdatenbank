@@ -1,6 +1,6 @@
 # Wissen bleibt
 
-Klickbarer, deutschsprachiger Prototyp, der Wissensmanagement, Exit-Prozess und Onboarding verbindet. Von Aida Dulic (HR Content, Employer Branding, AI Enablement).
+Klickbarer, deutschsprachiger Prototyp, der Wissensmanagement, Exit-Prozess und Onboarding verbindet. Von Aida Dulic.
 
 Der Ablauf: **Exit erfassen → Wissen priorisieren → Übergabe planen → Wissen erfassen → Übernahme prüfen → Onboarding erstellen.** Jede abgeschlossene Übergabe aktualisiert zusätzlich ein **Wissensregister** mit Stellenbeschreibungen, Projekten und einer Auswertung zur Prozessverbesserung.
 
@@ -25,9 +25,14 @@ Die App ist eine einzige Datei ohne Build-Schritt und ohne Abhängigkeiten.
 - Exit-Fall anlegen (mit Prüfung der Eingaben und simuliertem HR-Ereignis), Detailansicht mit sechs Schritten
 - Rückwärts berechneter Zeitplan, inklusive Vorschau bei Datumsänderung
 - Aufgaben und Projekte mit Prioritäten A, B und C und passenden Übergabeschritten
-- Geführte Wissenserfassung mit 14 Fragen, Zwischenspeichern und Fortsetzen
+- Wissenserfassung beginnt mit den drei kritischsten Aufgaben (Quellen verknüpfen, Fehlendes, Erfahrungswissen, Interviewnotiz); optional 14 vertiefende Fragen in 7 Abschnitten
+- Simulierte Vorschläge (regelbasiert, keine KI): Antwort → Vorschlag → Quelle → Korrektur → Bestätigung → Wissenseintrag
 - Termine als Monatskalender und Liste, simulierte Einladungen
-- Übernahmeprüfung (Praxisprüfung, Nacharbeit, Abnahme)
+- Sechs getrennte Prüfstufen je Aufgabe (Dokumentation, fachliche Prüfung, Zugänge, erklärt, selbstständig durchgeführt, abgenommen) mit Nachweis, Nacharbeit und Wiederholung
+- Zwei berechnete Kennzahlen: „Vorbereitung abgeschlossen“ und „Selbstständige Übernahme bestätigt“, dazu Zähler für kritische Aufgaben
+- Terminplanung nach Verfügbarkeit: Vertretung vor Eintritt der Nachfolge, Status „blockiert“, Zeitbudget, Vorschlag zur Neuplanung
+- Pilotauswertung mit „Noch keine Daten“, wenn Daten fehlen
+- Demo-Datum in der Seitenleiste, um spätere Schritte (z. B. Leas Eintritt am 16.11.) durchzuspielen
 - Onboarding-Plan: weiterführen, verbessern oder einstellen
 - Verkürzter Übergabeprozess für Sonderfälle
 - **Wissensregister:** Stellenbeschreibungen, Projekte, Auswertung mit Hinweisen
@@ -36,7 +41,7 @@ Die App ist eine einzige Datei ohne Build-Schritt und ohne Abhängigkeiten.
 
 ## Datenspeicherung
 
-- Fälle, Aufgaben, Termine und Eingaben liegen im `localStorage` des Browsers (Schlüssel `wissen-bleibt-demo-v1`).
+- Fälle, Aufgaben, Termine und Eingaben liegen im `localStorage` des Browsers (Schlüssel `wissen-bleibt-demo-v2`).
 - Das Wissensregister liegt unter `wissen-bleibt-register-v1`, ebenfalls lokal im Browser.
 - „Demo zurücksetzen“ in der Seitenleiste lädt die Beispieldaten neu.
 - Wenn die App auf claude.ai als Artifact läuft, nutzt das Register stattdessen die gemeinsame Datenbank dieser Seite und es gibt eine Bearbeitungsleiste für Kommentare. Auf GitHub Pages sind diese beiden Funktionen nicht aktiv.
@@ -71,3 +76,7 @@ Die Module in `src/` werden in dieser Reihenfolge zusammengesetzt: Daten, Kern (
 ## Lizenz
 
 Noch nicht festgelegt. Bitte vor der Veröffentlichung eine `LICENSE`-Datei ergänzen (zum Beispiel MIT).
+
+## Was simuliert ist
+
+HR-Ereignis, Kalendereinladungen, Wissensquellen (kein SharePoint), automatische Vorschläge (Regeln, keine KI) und alle Personen und Daten. Es gibt keine Zeitersparnis-Aussage, weil Vergleichsdaten fehlen.
