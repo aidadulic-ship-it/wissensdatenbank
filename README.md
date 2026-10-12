@@ -80,3 +80,6 @@ Noch nicht festgelegt. Bitte vor der Veröffentlichung eine `LICENSE`-Datei erg�
 ## Was simuliert ist
 
 HR-Ereignis, Kalendereinladungen, Wissensquellen (kein SharePoint), automatische Vorschläge (Regeln, keine KI) und alle Personen und Daten. Es gibt keine Zeitersparnis-Aussage, weil Vergleichsdaten fehlen.
+
+## Startseite
+Beim Öffnen erscheint eine Startseite mit Start-Knopf, der in die Datenbank führt (`index.html#app` überspringt sie; Klick auf das Logo links oben öffnet sie wieder). Ein Avatar-Video (z. B. HeyGen-Export) lässt sich über die Konstante `LANDING_VIDEO` in `src/13-landing.js` eintragen.
