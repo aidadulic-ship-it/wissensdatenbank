@@ -36,7 +36,7 @@ Die App ist eine einzige Datei ohne Build-Schritt und ohne Abhängigkeiten.
 - Onboarding-Plan: weiterführen, verbessern oder einstellen
 - Verkürzter Übergabeprozess für Sonderfälle
 - **Wissensregister:** Stellenbeschreibungen, Projekte, Auswertung mit Hinweisen
-- **Produktionsreife & Umsetzung:** interaktiver Planungsbereich (Code-Befunde, Zielarchitektur, Datenmodell und Fachregeln, Outlook/Graph-Plan, Workflows, Sicherheit & Datenschutz, Fahrplan M0–M5) mit Status, Verantwortlichen, Zieltermin, Nachweisen, Filtern und Markdown-Export. Reine Planung: Datenbank, Outlook und Automatisierungen sind weiterhin simuliert; es gibt kein Backend, keine echte Anmeldung und keine Graph-Anbindung. Die Planungsdaten liegen getrennt im Browser (`wissen-bleibt-plan-v1`).
+- **Weiterentwicklung (Ausblick) – „Produktionsreife & Umsetzung“:** interaktiver Planungsbereich (Code-Befunde, Zielarchitektur, Datenmodell und Fachregeln, Outlook/Graph-Plan, Workflows, Sicherheit & Datenschutz, Fahrplan M0–M5) mit Status, Verantwortlichen, Zieltermin, Nachweisen, Filtern und Markdown-Export. Reine Planung: Datenbank, Outlook und Automatisierungen sind weiterhin simuliert; es gibt kein Backend, keine echte Anmeldung und keine Graph-Anbindung. Die Planungsdaten liegen getrennt im Browser (`wissen-bleibt-plan-v1`).
 - Demo-Rollenwechsel (austretende Person, Führungskraft, übernehmende Person, HR)
 - Befehlspalette (Strg/Cmd + K), Hilfe, Hell- und Dunkelmodus, Bedienung am Handy
 
@@ -83,4 +83,4 @@ Noch nicht festgelegt. Bitte vor der Veröffentlichung eine `LICENSE`-Datei erg�
 HR-Ereignis, Kalendereinladungen, Wissensquellen (kein SharePoint), automatische Vorschläge (Regeln, keine KI) und alle Personen und Daten. Es gibt keine Zeitersparnis-Aussage, weil Vergleichsdaten fehlen.
 
 ## Startseite
-Beim Öffnen erscheint eine Startseite mit Start-Knopf, der in die Datenbank führt (`index.html#app` überspringt sie; Klick auf das Logo links oben öffnet sie wieder). Ein Avatar-Video (z. B. HeyGen-Export) lässt sich über die Konstante `LANDING_VIDEO` in `src/13-landing.js` eintragen.
+Beim Öffnen erscheint eine Startseite mit Start-Knopf, der in die Datenbank führt (`index.html#app` überspringt sie; Klick auf das Logo links oben öffnet sie wieder). Der Avatar ist als KI-generiert gekennzeichnet. Ein Avatar-Video (z. B. HeyGen-Export) lässt sich über `LANDING_VIDEO` in `src/13-landing.js` eintragen; ebenso `LANDING_EMAIL` und `LANDING_LINKEDIN` für den Kontaktblock (leer = Block bleibt unsichtbar). Der Abschnitt „So könnte die Zusammenarbeit aussehen“ ist ein Entwurf und gehört in `src/2b-landing.html`.
